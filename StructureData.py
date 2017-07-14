@@ -81,7 +81,7 @@ class SData(object):
 
     def append(self, new_row):
 
-        self.data = np.row_stack((self.data, new_row))
+        self.values = np.row_stack((self.values, new_row))
 
     def reindex(self):
 
