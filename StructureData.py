@@ -19,7 +19,7 @@ class SData(object):
     Text:   A set of Text data with default transormers from sklearn.
     '''
 
-    def __init__(self, x, dtype='Series', transformer=None):
+    def __init__(self, x, index = None, dtype='Series', transformer=None):
 
         # Store the Structed DATA and Check if the input x is right.
         if type(x) == list:
@@ -55,7 +55,12 @@ class SData(object):
         else:
             print('Error: dtype should be Series, Bag, Image or Text')
 
-        # Store the transformer object
+        #Setting index.
+        if index == None:
+
+            self.index = range(len(self.values))
+
+        # Store the transformer object.
         self.transformer = transformer
 
     def __len__(self):
@@ -74,23 +79,30 @@ class SData(object):
 
         pass
 
-    @property
-    def extracted_features(self):
+    def append(self, new_row):
 
-        return self.transformer.fit(self.values).transform()
+        self.data = np.row_stack((self.data, new_row))
 
+    def reindex(self):
+
+        self.index = range(len(self.values))
 
     def std(self):
-        if self.dtype in ['Image','Text']:
+        if self.dtype in ['Image', 'Text']:
             print('Error: Image or Text data cannot caculate the std')
         else:
             return [np.std(i) for i in self.values]
 
-    def mean():
-        if self.dtype in ['Image','Text']:
+    def mean(self):
+        if self.dtype in ['Image', 'Text']:
             print('Error: Image or Text data cannot caculate the std')
         else:
             return [np.mean(i) for i in self.values]
+
+    @property
+    def extracted_features(self):
+
+        return self.transformer.fit(self.values).transform()
 
     def resample(cls, freq, func):
 
