@@ -1,8 +1,7 @@
 '''
-SDM is a package for using Series as features 
+SDM is a package for using Series as features
 '''
 
-
-from .StructureDataFrame import *
-from .Features_Extraction import *
 from .StructureData import *
+from .StructureDataFrame import *
+from .Transformers import *
