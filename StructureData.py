@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+from .Transformers import *
 
 class SData(object):
     '''

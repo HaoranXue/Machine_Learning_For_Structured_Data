@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from .StructureData import *
+from .Transformers import *
 
 class SDataFrame(object):
     '''
