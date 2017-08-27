@@ -19,7 +19,7 @@ class SData(object):
     Text:   A set of Text data with default transormers from sklearn.
     '''
 
-    def __init__(self, x, index = None, dtype='Series', transformer=None):
+    def __init__(self, x, index = None,column = None, dtype='Series',      transformer=None):
 
         # Store the Structed DATA and Check if the input x is right.
         if type(x) == list:
@@ -37,6 +37,8 @@ class SData(object):
                 else:
                     pass
             self.dtype = dtype
+            if transformer == None:
+                self.transformer = BasicSeries
 
         elif dtype == 'Bag':
             for i in range(len(self.values)):
@@ -45,12 +47,18 @@ class SData(object):
                 else:
                     pass
             self.dtype = dtype
+            if transformer == None:
+                self.transformer = BasicBag
 
         elif dtype == 'Image':
             self.dtype = dtype
+            if transformer == None:
+                self.transformer = BasicImage
 
         elif dtype == 'Text':
             self.dtype = dtype
+            if transformer == None:
+                self.transformer = BasicText
 
         else:
             print('Error: dtype should be Series, Bag, Image or Text')
@@ -61,7 +69,12 @@ class SData(object):
             self.index = range(len(self.values))
 
         # Store the transformer object.
-        self.transformer = transformer
+        if transformer != None:
+
+            self.transformer = transformer
+
+        self.column = column
+
 
     def __len__(self):
 
@@ -79,6 +92,15 @@ class SData(object):
 
         pass
 
+    @property
+    def p_dtype(self):
+
+        return type(self.values)
+
+    @property
+    def size(self):
+        return [len(i) for i in self.values]
+
     def append(self, new_row):
 
         self.values = np.row_stack((self.values, new_row))
@@ -87,17 +109,60 @@ class SData(object):
 
         self.index = range(len(self.values))
 
+    def min(self):
+        if self.dtype in ['Image', 'Text']:
+            print('Error: Image or Text data cannot caculate the min')
+        else:
+            return np.asarray([np.min(i) for i in self.values])
+
+    def max(self):
+        if self.dtype in ['Image', 'Text']:
+            print('Error: Image or Text data cannot caculate the max')
+        else:
+            return np.asarray([np.max(i) for i in self.values])
+
     def std(self):
         if self.dtype in ['Image', 'Text']:
             print('Error: Image or Text data cannot caculate the std')
         else:
-            return [np.std(i) for i in self.values]
+            return np.asarray([np.std(i) for i in self.values])
 
     def mean(self):
         if self.dtype in ['Image', 'Text']:
-            print('Error: Image or Text data cannot caculate the std')
+            print('Error: Image or Text data cannot caculate the mean')
         else:
-            return [np.mean(i) for i in self.values]
+            return np.asarray([np.mean(i) for i in self.values])
+
+    def shift(self,n):
+        self.values = self.values[:-1]
+        self.index = self.index[1:]
+
+    def inner_shift(self,n):
+        if self.dtype in ['Image', 'Text','Bag']:
+            print('Error: Image,Text and bag data don not have inner_shift method')
+        else:
+            return np.asarray([ i.shift(n) for i in self.values])
+
+    def fillna(self,x):
+        if self.dtype in ['Image', 'Text']:
+            print('Error: Image,Text data don not have fillna method')
+        else:
+            for i in range(len(self.values)):
+                self.values[i] = self.values[i].fillna(x)
+
+    def ffill(self,x):
+        if self.dtype in ['Image', 'Text']:
+            print('Error: Image,Text data don not have ffill method')
+        else:
+            for i in range(len(self.values)):
+                self.values[i] = self.values[i].ffill
+
+    def bfill(self,x):
+        if self.dtype in ['Image', 'Text']:
+            print('Error: Image,Text data don not have bfill method')
+        else:
+            for i in range(len(self.values)):
+                self.values[i] = self.values[i].bfill
 
     @property
     def extracted_features(self):
@@ -107,7 +172,7 @@ class SData(object):
     def resample(cls, freq, func):
 
         if self.dtype == 'Series':
-            self.values = [i.resample(freq).apply(func) for i in self.values]
+            self.values = np.asarray([i.resample(freq).apply(func) for i in self.values])
         else:
             print('Only Series type can be resampled')
 
@@ -120,3 +185,11 @@ class SData(object):
                        transformer=self.transformer)
         else:
             print('Only Series type can be resampled')
+
+    @classmethod
+    def apply(cls,func):
+        new_values = []
+        for i in range(len(self.values)):
+            new_values.append(func(self.values[i]))
+
+        return cls(new_values, index = self.index, dtype = self.dtype,          transformer = self.transformer)
