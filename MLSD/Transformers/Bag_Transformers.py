@@ -9,7 +9,7 @@ class BasicBag(TransformerMixin):
         self.mesh = mesh
         self.Dreduction = Dreduction
 
-    def fit(self, X, y =None):
+    def fit(self, X, y =None,*args,**kwargs):
 
         if self.mesh == False:
 
@@ -79,7 +79,7 @@ class BasicBag(TransformerMixin):
                                         X.apply(so_skew),
                                         X.apply(so_kurt)],index= X.index)
 
-    def transform(self,X):
+    def transform(self,X,*args,**kwargs):
         if self.mesh == False:
 
 
@@ -147,5 +147,5 @@ class BasicBag(TransformerMixin):
                                         X.apply(so_max),
                                         X.apply(so_skew),
                                         X.apply(so_kurt)],index= X.index)
-            
+
         return self.features

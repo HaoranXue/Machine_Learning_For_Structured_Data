@@ -1,4 +1,4 @@
-from function import Function
+from .function import Function
 from scipy import interpolate
 
 class Bspline(Function):

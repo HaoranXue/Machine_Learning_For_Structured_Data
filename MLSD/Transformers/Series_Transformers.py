@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
-from sklearn.base import TranssormerMixin
-
+from scipy.stats import skew, kurtosis
+from sklearn.base import TransformerMixin
+from .pyFDA import bspline
+from .pyFDA.register import localRegression
 
 
 class BasicSeries(TransformerMixin):
@@ -10,11 +12,13 @@ class BasicSeries(TransformerMixin):
 
         self.Dreduction = Dreduction
 
-    def fit(self, X, y =None):
+    def fit(self, X,*args,**kwargs):
 
         def first_order_d(X):
+            X= np.asarray(X)
             return X[1:]-X[:-1]
         def second_order_d(X):
+            X= np.asarray(X)
             first_order = first_order_d(X)
             return first_order[1:]-first_order[:-1]
         def fo_mean(X):
@@ -46,7 +50,7 @@ class BasicSeries(TransformerMixin):
         def so_kurt(X):
             return kurtosis(second_order_d(X))
 
-        self.features = pd.DataFrame([X.min(),
+        self.features = pd.DataFrame(np.asarray([X.min(),
                                     X.max(),
                                     X.mean(),
                                     X.std(),
@@ -66,13 +70,16 @@ class BasicSeries(TransformerMixin):
                                     X.apply(so_median),
                                     X.apply(so_max),
                                     X.apply(so_skew),
-                                    X.apply(so_kurt)],index= X.index)
-                                    
-    def transform(self,X):
+                                    X.apply(so_kurt)]).T).dropna(1)
+
+
+    def transform(self,X,*args,**kwargs):
 
         def first_order_d(X):
+            X= np.asarray(X)
             return X[1:]-X[:-1]
         def second_order_d(X):
+            X = np.asarray(X)
             first_order = first_order_d(X)
             return first_order[1:]-first_order[:-1]
         def fo_mean(X):
@@ -104,7 +111,7 @@ class BasicSeries(TransformerMixin):
         def so_kurt(X):
             return kurtosis(second_order_d(X))
 
-        self.features = pd.DataFrame([X.min(),
+        features = pd.DataFrame(np.asarray([X.min(),
                                     X.max(),
                                     X.mean(),
                                     X.std(),
@@ -124,5 +131,12 @@ class BasicSeries(TransformerMixin):
                                     X.apply(so_median),
                                     X.apply(so_max),
                                     X.apply(so_skew),
-                                    X.apply(so_kurt)],index= X.index)
-        return self.features
+                                    X.apply(so_kurt)]).T).dropna(1)
+        return features
+
+#
+# class BsplineSeries(TransformerMixin):
+#
+#
+# class localRSeries(TransformerMixin):
+#

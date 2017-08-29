@@ -180,10 +180,8 @@ class SDataFrame(object):
 
         return cls(data= new_data, columns = self.columns, index=self.index)
 
-    @classmethod
-    def apply(cls,func):
+    def apply(self,func):
         new_data = []
         for i in range(len(self.values)):
             new_data.append(self.data.apply(func))
-
-        return cls(new_data, index = self.index, columns = self.columns,       transformer = self.transformer)
+        return new_data

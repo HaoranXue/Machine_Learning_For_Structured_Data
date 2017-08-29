@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from .Transformers import *
+from .Transformers import BasicSeries,BasicBag,BasicText,BasicImage
 
 class SData(object):
     '''
@@ -38,7 +38,7 @@ class SData(object):
                     pass
             self.dtype = dtype
             if transformer == None:
-                self.transformer = BasicSeries
+                self.transformer = BasicSeries(Dreduction= None)
 
         elif dtype == 'Bag':
             for i in range(len(self.values)):
@@ -48,17 +48,17 @@ class SData(object):
                     pass
             self.dtype = dtype
             if transformer == None:
-                self.transformer = BasicBag
+                self.transformer = BasicBag()
 
         elif dtype == 'Image':
             self.dtype = dtype
             if transformer == None:
-                self.transformer = BasicImage
+                self.transformer = BasicImage()
 
         elif dtype == 'Text':
             self.dtype = dtype
             if transformer == None:
-                self.transformer = BasicText
+                self.transformer = BasicText()
 
         else:
             print('Error: dtype should be Series, Bag, Image or Text')
@@ -166,8 +166,9 @@ class SData(object):
 
     @property
     def extracted_features(self):
-
-        return self.transformer.fit(self.values).transform()
+        transformer = self.transformer
+        transformer.fit(self)
+        return transformer.transform(self)
 
     def resample(cls, freq, func):
 
@@ -186,10 +187,6 @@ class SData(object):
         else:
             print('Only Series type can be resampled')
 
-    @classmethod
-    def apply(cls,func):
-        new_values = []
-        for i in range(len(self.values)):
-            new_values.append(func(self.values[i]))
+    def apply(self,func):
 
-        return cls(new_values, index = self.index, dtype = self.dtype,          transformer = self.transformer)
+        return np.asarray([func(i) for i in self.values])
