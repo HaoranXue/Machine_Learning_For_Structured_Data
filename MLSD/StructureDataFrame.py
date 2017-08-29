@@ -22,12 +22,13 @@ class SDataFrame(object):
         self.len = len_list[0]
 
         #Check columns format.
-        if columns == None:
-            self.columns = range(len(self.data))
-        elif len(columns) == len(self.data):
-            self.columns = columns
-        else:
-            print('Error: columns have a different len from the data.')
+        self.columns = columns
+        # if columns == None:
+        #     self.columns = range(len(self.data))
+        # elif len(columns) == len(self.data):
+        #     self.columns = columns
+        # else:
+        #     print('Error: columns have a different len from the data.')
 
         #Check index format.
         if index == None:
@@ -39,12 +40,12 @@ class SDataFrame(object):
 
         self.data = []
         for i in data:
-            if type(i) == list or type(i) == np.ndarray:
-                self.data.append(SData(x=i, index =index))
-            elif print(i) == 'SData':
+            # if type(i) == list or type(i) == np.ndarray:
+            #     self.data.append(SData(x=i, index =index))
+            # elif print(i) == 'SData':
                 self.data.append(i)
-            else:
-                print('Error: Elements of data have a wrong type.')
+            # else:
+            #     print('Error: Elements of data have a wrong type.')
 
         if transformers == None:
             pass
@@ -65,7 +66,7 @@ class SDataFrame(object):
         if 'Image' in self.dtype or 'Text' in self.dtype :
             print('Error: Image or Text data cannot caculate the max')
         else:
-            return pd.DataFrame(np.asarray([i.max() for i in self.data]), index= self.index,columns=self.columns)
+            return pd.DataFrame(np.asarray([i.max() for i in self.data]).T, columns=self.columns)
 
     def mean(self):
         if 'Image' in self.dtype or 'Text' in self.dtype :
