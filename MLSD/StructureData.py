@@ -174,8 +174,7 @@ class SData(object):
     @property
     def extracted_features(self):
         transformer = self.transformer
-        transformer.fit(self)
-        return transformer.transform(self)
+        return transformer.fit_transform(self)
 
     def resample(cls, freq, func):
 
