@@ -60,8 +60,7 @@ class SDataFrame(object):
         if 'Image' in self.dtype or 'Text' in self.dtype :
             print('Error: Image or Text data cannot caculate the min')
         else:
-            return pd.DataFrame(np.asarray([i.min() for i in self.data]), index= self.index,columns=self.columns)
-
+            return pd.DataFrame(np.asarray([i.min() for i in self.data]).T, columns=self.columns)
     def max(self):
         if 'Image' in self.dtype or 'Text' in self.dtype :
             print('Error: Image or Text data cannot caculate the max')
@@ -72,13 +71,13 @@ class SDataFrame(object):
         if 'Image' in self.dtype or 'Text' in self.dtype :
             print('Error: Image or Text data cannot caculate the mean')
         else:
-            return pd.DataFrame(np.asarray([i.mean() for i in self.data]), index= self.index,columns=self.columns)
+            return pd.DataFrame(np.asarray([i.mean() for i in self.data]).T, columns=self.columns)
 
     def std(self):
         if 'Image' in self.dtype or 'Text' in self.dtype :
             print('Error: Image or Text data cannot caculate the std')
         else:
-            return pd.DataFrame(np.asarray([i.std() for i in self.data]), index= self.index,columns=self.columns)
+            return pd.DataFrame(np.asarray([i.std() for i in self.data]).T, columns=self.columns)
 
     def shift(self,n):
         self.data = [i.shift(n) for i in self.data]
@@ -146,9 +145,12 @@ class SDataFrame(object):
     def extracted_features(self):
         features = self.data[0].extracted_features
         for i in range(len(self.data)):
-            features.join(
-            self.data[i].extracted_features)
-
+            feature = self.data[i].extracted_features
+            new_name = []
+            for j in feature.columns:
+                new_name.append(str(j)+str(i))
+            feature.columns = new_name
+            features.join(feature)
         return features
 
 

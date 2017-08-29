@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from .Transformers import BasicSeries,BasicBag,BasicText,BasicImage
 
 class SData(object):
@@ -91,6 +92,12 @@ class SData(object):
     def __call__(self):
 
         pass
+
+    def plot(self):
+        for i in self:
+            plt.plot(i)
+
+        plt.show()
 
     @property
     def p_dtype(self):
