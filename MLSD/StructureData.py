@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from .Transformers import BasicSeries,BasicBag,BasicText,BasicImage
+from .Transformers import BasicSeries, BasicBag, BasicText, BasicImage
+
 
 class SData(object):
     '''
@@ -20,7 +21,12 @@ class SData(object):
     Text:   A set of Text data with default transormers from sklearn.
     '''
 
-    def __init__(self, x, index = None,column = None, dtype='Series',      transformer=None):
+    def __init__(self,
+                 x,
+                 index=None,
+                 column=None,
+                 dtype='Series',
+                 transformer=None):
 
         # Store the Structed DATA and Check if the input x is right.
         if type(x) == list:
@@ -39,7 +45,7 @@ class SData(object):
                     pass
             self.dtype = dtype
             if transformer == None:
-                self.transformer = BasicSeries(Dreduction= None)
+                self.transformer = BasicSeries(Dreduction=None)
 
         elif dtype == 'Bag':
             for i in range(len(self.values)):
@@ -75,7 +81,6 @@ class SData(object):
             self.transformer = transformer
 
         self.column = column
-
 
     def __len__(self):
 
@@ -140,36 +145,63 @@ class SData(object):
         else:
             return np.asarray([np.mean(i) for i in self.values])
 
-    def shift(self,n):
+    def shift(self, n):
         self.values = self.values[:-1]
         self.index = self.index[1:]
 
-    def inner_shift(self,n):
-        if self.dtype in ['Image', 'Text','Bag']:
-            print('Error: Image,Text and bag data don not have inner_shift method')
+    def inner_shift(self, n):
+        if self.dtype in ['Image', 'Text', 'Bag']:
+            print(
+                'Error: Image,Text and bag data don not have inner_shift method'
+            )
         else:
-            return np.asarray([ i.shift(n) for i in self.values])
+            return np.asarray([i.shift(n) for i in self.values])
 
-    def fillna(self,x):
+    def fillna(self, x):
         if self.dtype in ['Image', 'Text']:
             print('Error: Image,Text data don not have fillna method')
         else:
             for i in range(len(self.values)):
                 self.values[i] = self.values[i].fillna(x)
 
-    def ffill(self,x):
+    def ffill(self, x):
         if self.dtype in ['Image', 'Text']:
             print('Error: Image,Text data don not have ffill method')
         else:
             for i in range(len(self.values)):
                 self.values[i] = self.values[i].ffill
 
-    def bfill(self,x):
+    def bfill(self, x):
         if self.dtype in ['Image', 'Text']:
             print('Error: Image,Text data don not have bfill method')
         else:
             for i in range(len(self.values)):
                 self.values[i] = self.values[i].bfill
+
+    def split_train_test(self,y,test_ratio=0.3):
+
+        length = len(self.values)
+        test_len = int(test_ratio * length)
+        train_len = length - test_len
+        index = np.asarray(range(length))
+        np.random.shuffle(index)
+        train_index = index[:train_len]
+        test_index = index[train_len:]
+
+        y_test = y[test_index]
+        y_train = y[train_index]
+
+        X_test = SData(
+            self.values[test_index],
+            dtype=self.dtype,
+            transformer=self.transformer)
+
+        X_train = SData(
+            self.values[train_index],
+            dtype=self.dtype,
+            transformer=self.transformer)
+
+        return X_train,y_train, X_test,y_test
 
     @property
     def extracted_features(self):
@@ -179,7 +211,8 @@ class SData(object):
     def resample(cls, freq, func):
 
         if self.dtype == 'Series':
-            self.values = np.asarray([i.resample(freq).apply(func) for i in self.values])
+            self.values = np.asarray(
+                [i.resample(freq).apply(func) for i in self.values])
         else:
             print('Only Series type can be resampled')
 
@@ -193,6 +226,6 @@ class SData(object):
         else:
             print('Only Series type can be resampled')
 
-    def apply(self,func):
+    def apply(self, func):
 
         return np.asarray([func(i) for i in self.values])

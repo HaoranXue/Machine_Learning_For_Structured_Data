@@ -4,13 +4,14 @@ import matplotlib.pyplot as plt
 from .StructureData import *
 from .Transformers import *
 
+
 class SDataFrame(object):
     '''
     StructureDataFrame is a data container to store sereis or structed data as features
     for machine learning models.
     '''
 
-    def __init__(self, data, columns=None, index=None, transformers= None):
+    def __init__(self, data, columns=None, index=None, transformers=None):
 
         #Check data's format.
         len_list = [len(i) for i in data]
@@ -43,9 +44,9 @@ class SDataFrame(object):
             # if type(i) == list or type(i) == np.ndarray:
             #     self.data.append(SData(x=i, index =index))
             # elif print(i) == 'SData':
-                self.data.append(i)
-            # else:
-            #     print('Error: Elements of data have a wrong type.')
+            self.data.append(i)
+        # else:
+        #     print('Error: Elements of data have a wrong type.')
 
         if transformers == None:
             pass
@@ -57,36 +58,45 @@ class SDataFrame(object):
         self.size = np.asarray([i.size for i in self.data])
 
     def min(self):
-        if 'Image' in self.dtype or 'Text' in self.dtype :
+        if 'Image' in self.dtype or 'Text' in self.dtype:
             print('Error: Image or Text data cannot caculate the min')
         else:
-            return pd.DataFrame(np.asarray([i.min() for i in self.data]).T, columns=self.columns)
+            return pd.DataFrame(
+                np.asarray([i.min() for i in self.data]).T,
+                columns=self.columns)
+
     def max(self):
-        if 'Image' in self.dtype or 'Text' in self.dtype :
+        if 'Image' in self.dtype or 'Text' in self.dtype:
             print('Error: Image or Text data cannot caculate the max')
         else:
-            return pd.DataFrame(np.asarray([i.max() for i in self.data]).T, columns=self.columns)
+            return pd.DataFrame(
+                np.asarray([i.max() for i in self.data]).T,
+                columns=self.columns)
 
     def mean(self):
-        if 'Image' in self.dtype or 'Text' in self.dtype :
+        if 'Image' in self.dtype or 'Text' in self.dtype:
             print('Error: Image or Text data cannot caculate the mean')
         else:
-            return pd.DataFrame(np.asarray([i.mean() for i in self.data]).T, columns=self.columns)
+            return pd.DataFrame(
+                np.asarray([i.mean() for i in self.data]).T,
+                columns=self.columns)
 
     def std(self):
-        if 'Image' in self.dtype or 'Text' in self.dtype :
+        if 'Image' in self.dtype or 'Text' in self.dtype:
             print('Error: Image or Text data cannot caculate the std')
         else:
-            return pd.DataFrame(np.asarray([i.std() for i in self.data]).T, columns=self.columns)
+            return pd.DataFrame(
+                np.asarray([i.std() for i in self.data]).T,
+                columns=self.columns)
 
-    def shift(self,n):
+    def shift(self, n):
         self.data = [i.shift(n) for i in self.data]
         self.index = self.index[1:]
 
-    def inner_shift(self,n):
+    def inner_shift(self, n):
         self.data = [i.inner_shift(n) for i in self.data]
 
-    def iloc(self,x,y):
+    def iloc(self, x, y):
         if type(x) == np.int and type(y) == np.int:
             return self.data[y][x]
         else:
@@ -117,7 +127,7 @@ class SDataFrame(object):
             else:
                 pass
 
-    def resample(self,freq,func):
+    def resample(self, freq, func):
 
         for i in range(len(self.data)):
             if type(self.data[i]) == np.ndarray:
@@ -129,48 +139,53 @@ class SDataFrame(object):
             else:
                 pass
 
-    def fillna(self,x):
+    def fillna(self, x):
         for i in self.data:
             i.fillna(x)
 
-    def ffill(self,x):
+    def ffill(self, x):
         for i in self.data:
             i.ffill()
 
-    def bfill(self,x):
+    def bfill(self, x):
         for i in self.data:
             i.bfill()
 
     @property
     def extracted_features(self):
         features = self.data[0].extracted_features
-        for i in range(len(self.data)):
+        for i in range(1, len(self.data)):
             feature = self.data[i].extracted_features
             new_name = []
             for j in feature.columns:
-                new_name.append(str(j)+str(i))
+                new_name.append(str(j) + str(i))
             feature.columns = new_name
-            features.join(feature)
+            features = features.join(feature)
         return features
 
-
-
     @classmethod
-    def join(clf,new_sdata):
+    def join(clf, new_sdata):
 
         if print(new_sdata) == 'SData':
 
-            sdata=[]
+            sdata = []
             for i in self.index:
-                sdata.append(new_sdata.values[new_sdata.index == i] )
+                sdata.append(new_sdata.values[new_sdata.index == i])
 
-            join_sdata = SData(sdata, index =self.index, column = new_sdata.column, dtype=new_sdata.dtype, transformer=new_sdata.transformer)
+            join_sdata = SData(
+                sdata,
+                index=self.index,
+                column=new_sdata.column,
+                dtype=new_sdata.dtype,
+                transformer=new_sdata.transformer)
 
-
-            return clf(data = self.data.append(join_sdata), columns = self.columns.append(join_sdata.column), index = self.index, transformer= self.transformer)
+            return clf(data=self.data.append(join_sdata),
+                       columns=self.columns.append(join_sdata.column),
+                       index=self.index,
+                       transformer=self.transformer)
 
     @classmethod
-    def C_resample(cls,freq,func):
+    def C_resample(cls, freq, func):
 
         new_data = []
         for i in range(len(self.data)):
@@ -181,9 +196,9 @@ class SDataFrame(object):
             else:
                 new_data.append(self.data[i])
 
-        return cls(data= new_data, columns = self.columns, index=self.index)
+        return cls(data=new_data, columns=self.columns, index=self.index)
 
-    def apply(self,func):
+    def apply(self, func):
         new_data = []
         for i in range(len(self.values)):
             new_data.append(self.data.apply(func))
