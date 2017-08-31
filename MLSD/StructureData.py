@@ -67,6 +67,10 @@ class SData(object):
             if transformer == None:
                 self.transformer = BasicText()
 
+        elif dtype == 'NonS':
+            self.dtype = dtype
+            self.transformer == None
+
         else:
             print('Error: dtype should be Series, Bag, Image or Text')
 
