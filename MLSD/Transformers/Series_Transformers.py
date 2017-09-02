@@ -3,6 +3,7 @@ import pandas as pd
 from scipy.stats import skew, kurtosis
 from sklearn.base import TransformerMixin
 from tsfresh import extract_features, extract_relevant_features
+import patsy as ps
 from .pyFDA import bspline
 from .pyFDA.register import localRegression
 
