@@ -2,7 +2,7 @@
 
 Author: Haoran Xue
 
-This Python library is developed for my master thesis supervised by Dr. Franz Kiraly at University College London.
+This Python library is developed for my master thesis which is supervised by Dr. Franz Kiraly at University College London.
 
 In this python library,  we provide a data container and Multiply transformers for Structured data.
 
