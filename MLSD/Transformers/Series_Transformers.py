@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import skew, kurtosis
 from sklearn.base import TransformerMixin
+from sklearn.linear_model import LinearRegression
 from tsfresh import extract_features, extract_relevant_features
 import patsy as ps
 from .pyFDA import bspline
@@ -264,23 +265,86 @@ class tsfreshSeries(TransformerMixin):
         return features.dropna(1)
 
 
-# class BsplineSeries(TransformerMixin):
-#
-#     def __init__(self,degrees, knots):
-#         self.degrees = degrees
-#         self.knots = knots
-#
-#     def fit(self,X,y=None):
-#
-#         for i in X:
-#
-#
-#     def transform(self,X):
-#
-#     def fit_transform(self,X):
-#
-#
-#
+class BsplineSeries(TransformerMixin):
+    def __init__(self, degrees, knots):
+        self.degrees = degrees
+        self.knots = knots
 
-# class localRSeries(TransformerMixin):
-#
+    def fit(self, X, y=None):
+
+        self.model_list = []
+        for i in X:
+            smoothed_array = ps.builtins.bs(
+                i.values, degrees=self.degrees, df=self.knots)
+            model = LinearRegression()
+            model.fit(smoothed_array, i.values)
+            self.model_list.append(model)
+
+    def transform(self, X):
+
+        param_matrix = []
+        for i in self.model_list:
+            params = i.coef_
+            param_matrix.append(params)
+
+        return pa.DataFrame(np.asarray(param_matrix).T)
+
+    def fit_transform(self, X):
+
+        self.model_list = []
+        for i in X:
+            smoothed_array = ps.builtins.bs(
+                i.values, degrees=self.degrees, df=self.knots)
+            model = LinearRegression()
+            model.fit(smoothed_array, i.values)
+            self.model_list.append(model)
+
+        param_matrix = []
+
+        for i in self.model_list:
+            params = i.coef_
+            param_matrix.append(params)
+
+        return pa.DataFrame(np.asarray(param_matrix).T)
+
+
+class localRSeries(TransformerMixin):
+    def __init__(self, fractions):
+        self.fractions = franctions
+
+    def fit(self, X, y=None):
+
+        self.model_list = []
+        for i in X:
+            smoothed_array = localRegression.RegisterLocalRegression(
+                i.values)
+            model = LinearRegression()
+            model.fit(smoothed_array, i.values)
+            self.model_list.append(model)
+
+    def transform(self, X):
+
+        param_matrix = []
+        for i in self.model_list:
+            params = i.coef_
+            param_matrix.append(params)
+
+        return pa.DataFrame(np.asarray(param_matrix).T)
+
+    def fit_transform(self, X):
+
+        self.model_list = []
+        for i in X:
+            smoothed_array = localRegression.RegisterLocalRegression(
+                i.values)
+            model = LinearRegression()
+            model.fit(smoothed_array, i.values)
+            self.model_list.append(model)
+
+        param_matrix = []
+
+        for i in self.model_list:
+            params = i.coef_
+            param_matrix.append(params)
+
+        return pa.DataFrame(np.asarray(param_matrix).T)
