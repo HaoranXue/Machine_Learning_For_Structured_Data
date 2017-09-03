@@ -272,7 +272,7 @@ class BsplineSeries(TransformerMixin):
         self.degrees = degrees
         self.knots = knots
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None, *args, **kwargs):
 
         self.model_list = []
         for i in X:
@@ -282,7 +282,7 @@ class BsplineSeries(TransformerMixin):
             model.fit(smoothed_array, i.values)
             self.model_list.append(model)
 
-    def transform(self, X):
+    def transform(self, X,y= None, *args, **kwargs):
 
         param_matrix = []
         for i in self.model_list:
@@ -291,7 +291,7 @@ class BsplineSeries(TransformerMixin):
 
         return pa.DataFrame(np.asarray(param_matrix).T)
 
-    def fit_transform(self, X):
+    def fit_transform(self, X, y= None, *args, **kwargs):
 
         self.model_list = []
         for i in X:
@@ -314,7 +314,7 @@ class localRSeries(TransformerMixin):
     def __init__(self, fraction):
         self.fraction = franction
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None, *args, **kwargs):
 
         self.curves = []
         for i in X:
@@ -322,7 +322,7 @@ class localRSeries(TransformerMixin):
             smoothed = lowess(x=x, y = i.values,f= self.fraction)
             self.curves.append(smoothed)
 
-    def transform(self, X):
+    def transform(self, X,y=None, *args, **kwargs):
 
         def extract_inform(x):
             inf = [np.min(x),
@@ -337,7 +337,7 @@ class localRSeries(TransformerMixin):
 
         return pa.DataFrame(np.asarray(param_matrix).T)
 
-    def fit_transform(self, X):
+    def fit_transform(self, X,y=None, *args, **kwargs):
 
         self.curves = []
         for i in X:
@@ -363,10 +363,46 @@ class FPCA(TransformerMixin):
     def __init__(self):
 
 
-    def fit(self):
+    def fit(self, X,y=None, *args, **kwargs):
 
-    def transform(self):
+        def smooth(X):
+            SMOOTH = []
+            for i in X:
+                x = np.asarray(range(len(i)))
+                smoothed = lowess(x=x, y = i.values,f= self.fraction)
+                SMOOTH.append(smoothed)
+            return SMOOTH
 
-    def fit_transform(self):
+        multi_curve = []
+        for i in X:
+            if i.dtype == 'Series':
+                multi_curve.append(smooth(i))
+            else:
+                pass
+        self._FPCA = vertfPCA(np.asarray(multi_curve),*args,*kwargs)
 
-        
+
+
+    def transform(self, X,y=None, *args, **kwargs):
+
+        return self._FPCA
+
+    def fit_transform(self, X,y=None, *args, **kwargs):
+
+        def smooth(X):
+            SMOOTH = []
+            for i in X:
+                x = np.asarray(range(len(i)))
+                smoothed = lowess(x=x, y = i.values,f= self.fraction)
+                SMOOTH.append(smoothed)
+            return SMOOTH
+
+        multi_curve = []
+        for i in X:
+            if i.dtype == 'Series':
+                multi_curve.append(smooth(i))
+            else:
+                pass
+        self.FPCA = vertfPCA(np.asarray(multi_curve),*args,*kwargs)
+
+        return self._FPCA
