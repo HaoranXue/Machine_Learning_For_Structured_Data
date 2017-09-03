@@ -5,6 +5,7 @@ from scipy.stats import skew, kurtosis
 from sklearn.base import TransformerMixin
 from sklearn.linear_model import LinearRegression
 from tsfresh import extract_features, extract_relevant_features
+from fdasrsf.fPCA import vertfPCA
 from .pyFDA import bspline
 from .pyFDA.register import localRegression
 from .pyFDA.lowess import lowess
@@ -356,3 +357,16 @@ class localRSeries(TransformerMixin):
             param_matrix.append(extract_inform(i))
 
         return pa.DataFrame(np.asarray(param_matrix).T)
+
+class FPCA(TransformerMixin):
+
+    def __init__(self):
+
+
+    def fit(self):
+
+    def transform(self):
+
+    def fit_transform(self):
+
+        
