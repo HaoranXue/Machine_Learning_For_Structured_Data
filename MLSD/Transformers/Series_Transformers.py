@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
+import patsy as ps
 from scipy.stats import skew, kurtosis
 from sklearn.base import TransformerMixin
 from sklearn.linear_model import LinearRegression
 from tsfresh import extract_features, extract_relevant_features
-import patsy as ps
 from .pyFDA import bspline
 from .pyFDA.register import localRegression
+from .pyFDA.lowess import lowess
 
 
 class BasicSeries(TransformerMixin):
@@ -309,42 +310,49 @@ class BsplineSeries(TransformerMixin):
 
 
 class localRSeries(TransformerMixin):
-    def __init__(self, fractions):
-        self.fractions = franctions
+    def __init__(self, fraction):
+        self.fraction = franction
 
     def fit(self, X, y=None):
 
-        self.model_list = []
+        self.curves = []
         for i in X:
-            smoothed_array = localRegression.RegisterLocalRegression(
-                i.values)
-            model = LinearRegression()
-            model.fit(smoothed_array, i.values)
-            self.model_list.append(model)
+            x = np.asarray(range(len(i)))
+            smoothed = lowess(x=x, y = i.values,f= self.fraction)
+            self.curves.append(smoothed)
 
     def transform(self, X):
 
+        def extract_inform(x):
+            inf = [np.min(x),
+             np.max(x),
+             skew(x),
+             kurtosis(x)]
+             return inf
+
         param_matrix = []
-        for i in self.model_list:
-            params = i.coef_
-            param_matrix.append(params)
+        for i in self.smoothed:
+            param_matrix.append(extract_inform(i))
 
         return pa.DataFrame(np.asarray(param_matrix).T)
 
     def fit_transform(self, X):
 
-        self.model_list = []
+        self.curves = []
         for i in X:
-            smoothed_array = localRegression.RegisterLocalRegression(
-                i.values)
-            model = LinearRegression()
-            model.fit(smoothed_array, i.values)
-            self.model_list.append(model)
+            x = np.asarray(range(len(i)))
+            smoothed = lowess(x=x, y = i.values,f= self.fraction)
+            self.curves.append(smoothed)
+
+        def extract_inform(x):
+            inf = [np.min(x),
+             np.max(x),
+             skew(x),
+             kurtosis(x)]
+             return inf
 
         param_matrix = []
-
-        for i in self.model_list:
-            params = i.coef_
-            param_matrix.append(params)
+        for i in self.smoothed:
+            param_matrix.append(extract_inform(i))
 
         return pa.DataFrame(np.asarray(param_matrix).T)
